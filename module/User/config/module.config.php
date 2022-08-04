@@ -16,6 +16,27 @@ use User\Navigation\View\PermissionAclDelegatorFactory;
 use User\Navigation\View\RoleFromAuthenticationIdentityDelegator;
 
 return [
+    'dependencies'       => [
+        'auto' => [
+            'preferences' => [
+                Di\FooInterface::class => Di\Foo::class,
+            ],
+            'types'       => [
+                'MyClass.A' => [
+                    'typeOf'      => Di\MyClass::class,
+                    'preferences' => [
+                        Di\FooInterface::class => Di\SpecialFoo::class,
+                    ],
+                ],
+                'MyClass.B' => [
+                    'typeOf'      => Di\MyClass::class,
+                    'preferences' => [
+                        Di\FooInterface::class => Di\Bar::class,
+                    ],
+                ],
+            ],
+        ],
+    ],
     'module_settings'    => [
         'user' => [
             'server' => [

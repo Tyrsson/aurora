@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace User;
 
 use App\Controller\Factory\AppControllerFactory;
+use Laminas\Di\Container\AutowireFactory;
 use Laminas\I18n\Translator\Loader\PhpArray;
 use Laminas\Permissions\Acl\AclInterface;
 use Laminas\Router\Http\Literal;
@@ -35,6 +36,70 @@ return [
                     ],
                 ],
             ],
+            'factories'   => [
+                //Di\MyFactoryExample::class => AutowireFactory::class, // autowire the class via the contaier
+            ],
+        ],
+    ],
+    'service_manager'    => [
+        'aliases'   => [
+            'UserInterface'                     => Service\UserServiceInterface::class,
+            Service\UserServiceInterface::class => Service\UserService::class,
+        ],
+        'factories' => [
+            AclInterface::class                    => Acl\AclFactory::class,
+            Db\Listener\UserGatewayListener::class => Db\Listener\UserGatewayListenerFactory::class,
+            Db\UserGateway::class                  => Db\Factory\UserGatewayFactory::class,
+            Model\Roles::class                     => InvokableFactory::class,
+            Model\Guest::class                     => InvokableFactory::class,
+            Service\UserService::class             => Service\Factory\UserServiceFactory::class,
+        ],
+    ],
+    'controllers'        => [
+        'factories' => [
+            Controller\AccountController::class       => AppControllerFactory::class,
+            Controller\AdminController::class         => AppControllerFactory::class,
+            Controller\ManageProfileController::class => AppControllerFactory::class,
+            Controller\PasswordController::class      => AppControllerFactory::class,
+            Controller\ProfileController::class       => AppControllerFactory::class,
+            Controller\RegisterController::class      => AppControllerFactory::class,
+            Controller\UserController::class          => AppControllerFactory::class,
+            Controller\WidgetController::class        => AppControllerFactory::class,
+        ],
+    ],
+    'navigation_helpers' => [
+        'delegators' => [
+            Navigation::class => [
+                PermissionAclDelegatorFactory::class,
+                RoleFromAuthenticationIdentityDelegator::class,
+            ],
+        ],
+    ],
+    'view_helpers'       => [
+        'aliases'   => [
+            'acl'             => View\Helper\Acl::class,
+            'aclawarecontrol' => View\Helper\AclAwareControl::class,
+            'aclAwareControl' => View\Helper\AclAwareControl::class,
+            'aclControl'      => View\Helper\AclAwareControl::class,
+            'identity'        => View\Helper\Identity::class,
+        ],
+        'factories' => [
+            View\Helper\Acl::class             => View\Helper\Factory\AclFactory::class,
+            View\Helper\AclAwareControl::class => View\Helper\Factory\AclAwareControlFactory::class,
+            View\Helper\Identity::class        => View\Helper\Factory\IdentityFactory::class,
+        ],
+    ],
+    'form_elements'      => [
+        'factories' => [
+            Form\Element\RoleSelect::class           => Form\Element\Factory\RoleSelectFactory::class,
+            Form\Fieldset\AcctDataFieldset::class    => Form\Fieldset\Factory\AcctDataFieldsetFactory::class,
+            Form\Fieldset\LoginFieldset::class       => Form\Fieldset\Factory\LoginFieldsetFactory::class,
+            Form\Fieldset\PasswordFieldset::class    => Form\Fieldset\Factory\PasswordFieldsetFactory::class,
+            Form\Fieldset\ProfileFieldset::class     => Form\Fieldset\Factory\ProfileFieldsetFactory::class,
+            Form\Fieldset\RoleFieldset::class        => Form\Fieldset\Factory\RoleFieldsetFactory::class,
+            Form\Fieldset\SocialMediaFieldset::class => Form\Fieldset\Factory\SocialMediaFieldsetFactory::class,
+            Form\UserForm::class                     => Form\Factory\UserFormFactory::class,
+            Form\ProfileForm::class                  => Form\Factory\ProfileFormFactory::class,
         ],
     ],
     'module_settings'    => [
@@ -354,26 +419,6 @@ return [
             ],
         ],
     ],
-    'navigation_helpers' => [
-        'delegators' => [
-            Navigation::class => [
-                PermissionAclDelegatorFactory::class,
-                RoleFromAuthenticationIdentityDelegator::class,
-            ],
-        ],
-    ],
-    'controllers'        => [
-        'factories' => [
-            Controller\AccountController::class       => AppControllerFactory::class,
-            Controller\AdminController::class         => AppControllerFactory::class,
-            Controller\ManageProfileController::class => AppControllerFactory::class,
-            Controller\PasswordController::class      => AppControllerFactory::class,
-            Controller\ProfileController::class       => AppControllerFactory::class,
-            Controller\RegisterController::class      => AppControllerFactory::class,
-            Controller\UserController::class          => AppControllerFactory::class,
-            Controller\WidgetController::class        => AppControllerFactory::class,
-        ],
-    ],
     'controller_plugins' => [
         'aliases'   => [
             'identity' => Controller\Plugin\Identity::class,
@@ -384,51 +429,10 @@ return [
             Controller\Plugin\Acl::class      => Controller\Plugin\Factory\AclFactory::class,
         ],
     ],
-    'service_manager'    => [
-        'aliases'   => [
-            'UserInterface'                     => Service\UserServiceInterface::class,
-            Service\UserServiceInterface::class => Service\UserService::class,
-        ],
-        'factories' => [
-            AclInterface::class                    => Acl\AclFactory::class,
-            Db\Listener\UserGatewayListener::class => Db\Listener\UserGatewayListenerFactory::class,
-            Db\UserGateway::class                  => Db\Factory\UserGatewayFactory::class,
-            Model\Roles::class                     => InvokableFactory::class,
-            Model\Guest::class                     => InvokableFactory::class,
-            Service\UserService::class             => Service\Factory\UserServiceFactory::class,
-        ],
-    ],
     'filters'            => [
         'factories' => [
             Filter\PasswordFilter::class   => InvokableFactory::class,
             Filter\RegistrationHash::class => InvokableFactory::class,
-        ],
-    ],
-    'form_elements'      => [
-        'factories' => [
-            Form\Element\RoleSelect::class           => Form\Element\Factory\RoleSelectFactory::class,
-            Form\Fieldset\AcctDataFieldset::class    => Form\Fieldset\Factory\AcctDataFieldsetFactory::class,
-            Form\Fieldset\LoginFieldset::class       => Form\Fieldset\Factory\LoginFieldsetFactory::class,
-            Form\Fieldset\PasswordFieldset::class    => Form\Fieldset\Factory\PasswordFieldsetFactory::class,
-            Form\Fieldset\ProfileFieldset::class     => Form\Fieldset\Factory\ProfileFieldsetFactory::class,
-            Form\Fieldset\RoleFieldset::class        => Form\Fieldset\Factory\RoleFieldsetFactory::class,
-            Form\Fieldset\SocialMediaFieldset::class => Form\Fieldset\Factory\SocialMediaFieldsetFactory::class,
-            Form\UserForm::class                     => Form\Factory\UserFormFactory::class,
-            Form\ProfileForm::class                  => Form\Factory\ProfileFormFactory::class,
-        ],
-    ],
-    'view_helpers'       => [
-        'aliases'   => [
-            'acl'             => View\Helper\Acl::class,
-            'aclawarecontrol' => View\Helper\AclAwareControl::class,
-            'aclAwareControl' => View\Helper\AclAwareControl::class,
-            'aclControl'      => View\Helper\AclAwareControl::class,
-            'identity'        => View\Helper\Identity::class,
-        ],
-        'factories' => [
-            View\Helper\Acl::class             => View\Helper\Factory\AclFactory::class,
-            View\Helper\AclAwareControl::class => View\Helper\Factory\AclAwareControlFactory::class,
-            View\Helper\Identity::class        => View\Helper\Factory\IdentityFactory::class,
         ],
     ],
     'translator'         => [

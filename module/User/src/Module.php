@@ -7,6 +7,7 @@ namespace User;
 use Laminas\Di\InjectorInterface;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Resolver\TemplateMapResolver;
+use User\Di\MyFactoryExample;
 use User\Listener\LayoutListener;
 
 final class Module
@@ -33,5 +34,32 @@ final class Module
         $di = $app->getServiceManager()->get(InjectorInterface::class);
         // the following is an instance of the class as defined in the configuration file
         $instance = $di->create(Di\MyClass::class);
+        // returns Laminas\ServiceManager\ServiceManager
+        $container = $di->getContainer();
+        // get $factoryExample from the container
+        $factoryExample = $container->get(MyFactoryExample::class);
+        // create an instance
+        $createFactoryExample = $di->create(MyFactoryExample::class);
+        if ($factoryExample === $createFactoryExample) {
+            $instanceOfA = $di->create('MyClass.A');
+        } else {
+            /**
+             * we get an instance of MyClass.B because
+             * $factoryExample and $createFactoryExample are different instances
+             */
+            $instanceOfB = $di->create('MyClass.B');
+        }
+        $anotherFactoryExample = $container->get(MyFactoryExample::class);
+        if ($factoryExample === $anotherFactoryExample) {
+            /**
+             * We get an instance of MyClass.A because
+             * because when pulled from the ServiceManager
+             * you get a shared instance by default, which means the
+             * object is created exactly once.
+             */
+            $instanceOfA = $di->create('MyClass.A');
+        } else {
+            $instanceOfB = $di->create('MyClass.B');
+        }
     }
 }

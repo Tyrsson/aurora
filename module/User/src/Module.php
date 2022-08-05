@@ -20,7 +20,7 @@ final class Module
     {
         $app = $e->getApplication();
         /** @var TemplateMapResolver $templateMapResolver */
-        $templateMapResolver = $app->getServiceManager()->get('ViewTemplateMapResolver');
+        $templateMapResolver = $app->getServiceManager()->get(TemplateMapResolver::class);
         // Create and register layout listener
         $listener = new LayoutListener($templateMapResolver);
         $listener->attach($app->getEventManager());
